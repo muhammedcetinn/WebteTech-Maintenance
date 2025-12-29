@@ -126,13 +126,33 @@ cd /var/www/webtetech-maintenance
 # Node_modules kur
 npm install
 
-# Production build oluştur
+# Static export oluştur (Next.js output: 'export' kullanıyor)
 npm run build
+# Build çıktısı: /out klasöründe static dosyalar
 ```
+
+**Not**: Bu proje static export kullanıyor, bu nedenle:
+- Build sonrası `/out` klasöründe static HTML/CSS/JS dosyaları oluşur
+- PM2 yerine doğrudan Nginx ile serve edilebilir
+- Node.js runtime gerekmez (opsiyonel olarak PM2 kullanabilirsiniz)
 
 ---
 
-## ⚙️ Adım 8: PM2 ile Uygulamayı Başlat
+## ⚙️ Adım 8: Nginx ile Static Dosyaları Serve Et
+
+**Not**: Bu proje static export kullandığı için PM2 gerekmez. Doğrudan Nginx ile serve edilir.
+
+```bash
+# Build çıktısının doğru yerde olduğundan emin ol
+ls -la /var/www/webtetech-maintenance/out
+
+# index.html dosyasının varlığını kontrol et
+cat /var/www/webtetech-maintenance/out/index.html
+```
+
+### Opsiyonel: PM2 ile Serve (Gerekli Değil)
+
+Eğer yine de PM2 kullanmak isterseniz (monitoring için):
 
 ```bash
 cd /var/www/webtetech-maintenance
@@ -143,23 +163,11 @@ pm2 start ecosystem.config.js --env production
 # Durumu kontrol et
 pm2 status
 
-# Logları görüntüle
-pm2 logs webtetech-maintenance
-
-# Ayarları kaydet (sunucu yeniden başladığında otomatik başlar)
+# Ayarları kaydet
 pm2 save
 ```
 
-### PM2 Komutları:
-
-```bash
-pm2 list                              # Tüm uygulamaları listele
-pm2 restart webtetech-maintenance     # Uygulamayı yeniden başlat
-pm2 stop webtetech-maintenance        # Uygulamayı durdur
-pm2 delete webtetech-maintenance      # Uygulamayı PM2'den kaldır
-pm2 logs webtetech-maintenance        # Logları göster
-pm2 monit                             # Monitoring arayüzü
-```
+**Ancak önerilen yöntem**: Nginx ile doğrudan static dosyaları serve etmek (daha hızlı ve hafif).
 
 ---
 
@@ -235,15 +243,17 @@ git pull origin main
 # Bağımlılıkları güncelle (gerekirse)
 npm install
 
-# Yeniden build et
+# Yeniden build et (static export)
 npm run build
 
-# PM2 ile restart
-pm2 restart webtetech-maintenance
+# Build çıktısı /out klasöründe oluşur
+# Nginx otomatik olarak güncel dosyaları serve eder
 
-# Logları kontrol et
-pm2 logs webtetech-maintenance
+# Nginx cache'ini temizle (opsiyonel)
+sudo systemctl reload nginx
 ```
+
+**Not**: Static export olduğu için PM2 restart gerekmez.
 
 ---
 

@@ -1,0 +1,9 @@
+# Webtetech - Maintenance Mode
+# This site is currently under maintenance
+# All bots are disallowed during maintenance period
+
+User-agent: *
+Disallow: /
+
+# Sitemap location
+Sitemap: https://www.webtetech.com/sitemap.xml
